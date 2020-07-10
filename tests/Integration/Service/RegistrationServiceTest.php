@@ -60,6 +60,8 @@ class RegistrationServiceTest extends TestCase {
 	private $tokenProvider;
 	/** @var ICrypto */
 	private $crypto;
+	/** @var RegistrationService */
+	private $service;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -127,8 +129,39 @@ class RegistrationServiceTest extends TestCase {
 		$ret = $this->service->validateEmail($email);
 		$this->assertTrue($ret, print_r($ret, true));
 	}
+
 	/**
 	 * @depends testValidateNewEmailWithinAllowedDomain
+	 */
+	public function testValidateNewEmailWithinAllowedDomainCaseInsensitive() {
+		$email = 'aaaa@example.com';
+
+		$this->config->expects($this->atLeastOnce())
+			->method('getAppValue')
+			->with("registration", 'allowed_domains', '')
+			->willReturn('eXample.com');
+
+		$ret = $this->service->validateEmail($email);
+		$this->assertTrue($ret, print_r($ret, true));
+	}
+
+	/**
+	 * @depends testValidateNewEmailWithinAllowedDomainCaseInsensitive
+	 */
+	public function testValidateNewCaseInsensitiveEmailWithinAllowedDomain() {
+		$email = 'aaaa@eXample.com';
+
+		$this->config->expects($this->atLeastOnce())
+			->method('getAppValue')
+			->with("registration", 'allowed_domains', '')
+			->willReturn('example.com');
+
+		$ret = $this->service->validateEmail($email);
+		$this->assertTrue($ret, print_r($ret, true));
+	}
+
+	/**
+	 * @depends testValidateNewCaseInsensitiveEmailWithinAllowedDomain
 	 */
 	public function testValidateNewEmailNotWithinAllowedDomain() {
 		$email2 = 'bbbb@gmail.com';
@@ -149,6 +182,7 @@ class RegistrationServiceTest extends TestCase {
 		$this->assertTrue($this->service->validateEmail($email));
 		$this->assertTrue($this->service->validateEmail($email2));
 	}
+
 	/**
 	 * @depends testValidateNewEmailWithinMultipleAllowedDomain
 	 */

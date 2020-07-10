@@ -207,17 +207,16 @@ class RegistrationService {
 	public function checkAllowedDomains($email) {
 		$allowed_domains = $this->config->getAppValue($this->appName, 'allowed_domains', '');
 		if ($allowed_domains !== '') {
-			$allowed_domains = explode(';', $allowed_domains);
-			$allowed = false;
+			$maildomain = explode('@', strtolower($email))[1];
+			$allowed_domains = explode(';', strtolower($allowed_domains));
+
 			foreach ($allowed_domains as $domain) {
-				$maildomain = explode("@", $email)[1];
-				// valid domain, everythings fine
+				// valid domain, everything is fine
 				if ($maildomain === $domain) {
-					$allowed = true;
-					break;
+					return true;
 				}
 			}
-			return $allowed;
+			return false;
 		}
 		return true;
 	}
