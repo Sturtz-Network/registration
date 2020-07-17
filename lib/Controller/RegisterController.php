@@ -96,10 +96,11 @@ class RegisterController extends Controller {
 			// No registration in progress
 			try {
 				$this->registrationService->validateEmail($email);
-				$registration = $this->registrationService->createRegistration($email);
 			} catch (RegistrationException $e) {
 				return $this->showEmailForm($email, $e->getMessage());
 			}
+
+			$registration = $this->registrationService->createRegistration($email);
 		}
 
 		try {
@@ -196,6 +197,7 @@ class RegisterController extends Controller {
 	/**
 	 * @PublicPage
 	 * @UseSession
+	 * @AnonRateThrottle(limit=5, period=1)
 	 *
 	 * @param string $secret
 	 * @param string $token
